@@ -13,13 +13,28 @@ const Index = () => {
   };
 
   const handleCandidateProfileUpload = (e) => {
-    // Simulating file upload
-    const uploadedProfiles = [
-      { name: "John Doe", profile: "Experienced software engineer with expertise in React and Node.js." },
-      { name: "Jane Smith", profile: "Frontend developer skilled in HTML, CSS, and JavaScript." },
-      { name: "Mike Johnson", profile: "Full-stack developer with knowledge of Python and Django." },
-    ];
-    setCandidateProfiles(uploadedProfiles);
+    const files = e.target.files;
+    const uploadedProfiles = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const content = e.target.result;
+
+        const name = file.name.split(".")[0];
+        const profile = content;
+
+        uploadedProfiles.push({ name, profile });
+
+        if (uploadedProfiles.length === files.length) {
+          setCandidateProfiles(uploadedProfiles);
+        }
+      };
+
+      reader.readAsText(file);
+    }
   };
 
   const analyzeProfiles = () => {
@@ -56,7 +71,8 @@ const Index = () => {
           <Textarea value={jobDescription} onChange={handleJobDescriptionChange} placeholder="Enter the job description" rows={6} />
         </VStack>
         <HStack justify="space-between">
-          <Button leftIcon={<FaFileUpload />} onClick={handleCandidateProfileUpload}>
+          <Button leftIcon={<FaFileUpload />}>
+            <input type="file" multiple accept=".txt" style={{ display: "none" }} onChange={handleCandidateProfileUpload} />
             Upload Candidate Profiles
           </Button>
           <Button colorScheme="blue" leftIcon={<FaSearch />} onClick={analyzeProfiles} isLoading={isAnalyzing} loadingText="Analyzing...">
